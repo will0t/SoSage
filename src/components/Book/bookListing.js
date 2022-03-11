@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import Table from '../Common/table';
 import Button from '../Common/button';
 import FullscreenModal from '../Modal/fullscreenModal';
+import AddBookModal from './addBookModal';
 import {
   faAngleUp,
   faAngleDown,
@@ -63,7 +64,12 @@ export default function BookListing() {
     // on success, setData
   };
 
-  const updateBook = (data) => {
+  const updateBook = (book, availability) => {
+    const newData = [...data];
+    const objectToModify = newData.find((row) => row.book === book);
+    objectToModify.availability = availability;
+    setData(newData);
+
     // TODO: API to update book
     // on success, getBooks(), setData
   };
@@ -95,17 +101,27 @@ export default function BookListing() {
         Header: 'Availability',
         accessor: 'availability',
         Cell: ({ row: { original } }) => {
-          const { availability } = original;
+          const { book, availability } = original;
           return (
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div style={{ flexGrow: 1 }}>
                 {availability ? 'Available' : 'Unavailable'}
               </div>
               <div>
-                <span className={'icon' + (availability ? '' : ' disabled')}>
+                <span
+                  className={'icon' + (availability ? '' : ' disabled')}
+                  onClick={() => {
+                    updateBook(book, 0);
+                  }}
+                >
                   <FontAwesomeIcon icon={faAngleUp} color="black" size="lg" />
                 </span>
-                <span className={'icon' + (!availability ? '' : ' disabled')}>
+                <span
+                  className={'icon' + (!availability ? '' : ' disabled')}
+                  onClick={() => {
+                    updateBook(book, 1);
+                  }}
+                >
                   <FontAwesomeIcon icon={faAngleDown} color="black" size="lg" />
                 </span>
                 <span className="icon">
@@ -134,7 +150,11 @@ export default function BookListing() {
   return (
     <>
       {showModal && (
-        <FullscreenModal showModal={showModal} setShowModal={setShowModal} />
+        <AddBookModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          setData={setData}
+        ></AddBookModal>
       )}
       {/* Mutate data to test table */}
       {/* <button
